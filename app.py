@@ -96,61 +96,76 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-    data = []
-    city_state = set([])
-    venues = Venue.query.all()
-    for v in venues:
-        cs.add((venue.city, venue.state))
-    for cs in city_state:
-        ven = []
-        d = {"city": cs[0], "state": cs[1], "venues": []}
-        for v in venues:
-            if v.city == cs[0] and v.state == cs[1]:
-                ven.append({
-                "id": v.id,
-                "name": v.name,
-                "num_upcoming_shows": len(v.artists)
-                })
-        d["venues"] = ven
-        data.append(d)
+    # data = []
+    # city_state = set([])
+    # venues = Venue.query.all()
+    # for v in venues:
+    #     cs.add((venue.city, venue.state))
+    # for cs in city_state:
+    #     ven = []
+    #     d = {"city": cs[0], "state": cs[1], "venues": []}
+    #     for v in venues:
+    #         if v.city == cs[0] and v.state == cs[1]:
+    #             ven.append({
+    #             "id": v.id,
+    #             "name": v.name,
+    #             "num_upcoming_shows": len(v.artists)
+    #             })
+    #     d["venues"] = ven
+    #     data.append(d)
 
 
-  # data=[{
-  #   "city": "San Francisco",
-  #   "state": "CA",
-  #   "venues": [{
-  #     "id": 1,
-  #     "name": "The Musical Hop",
-  #     "num_upcoming_shows": 0,
-  #   }, {
-  #     "id": 3,
-  #     "name": "Park Square Live Music & Coffee",
-  #     "num_upcoming_shows": 1,
-  #   }]
-  # }, {
-  #   "city": "New York",
-  #   "state": "NY",
-  #   "venues": [{
-  #     "id": 2,
-  #     "name": "The Dueling Pianos Bar",
-  #     "num_upcoming_shows": 0,
-  #   }]
-  # }]
-    return render_template('pages/venues.html', areas=data);
+  data=[{
+    "city": "San Francisco",
+    "state": "CA",
+    "venues": [{
+      "id": 1,
+      "name": "The Musical Hop",
+      "num_upcoming_shows": 0,
+    }, {
+      "id": 3,
+      "name": "Park Square Live Music & Coffee",
+      "num_upcoming_shows": 1,
+    }]
+  }, {
+    "city": "New York",
+    "state": "NY",
+    "venues": [{
+      "id": 2,
+      "name": "The Dueling Pianos Bar",
+      "num_upcoming_shows": 0,
+    }]
+  }]
+  return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
+
+  search_keyword = request.form.get('search_term', '')
+  venues = Venue.query.filter(Venue.name.ilike('%{}%'.format(search_keyword))).all()
+  response = {"count": len(venues)}
+  data = []
+  for v in venues:
+    data.append({
+    "id": v.id,
+    "name": v.name,
+    "num_upcoming_shows": len(v.artists)
+    })
+  response["data"] = data
+
+
+
+  # response={
+  #   "count": 1,
+  #   "data": [{
+  #     "id": 2,
+  #     "name": "The Dueling Pianos Bar",
+  #     "num_upcoming_shows": 0,
+  #   }]
+  # }
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
@@ -540,7 +555,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run()
 
 # Or specify port manually:
 '''
