@@ -32,8 +32,8 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 class Show(db.Model):
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key = True),
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key = True),
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key = True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key = True)
     start_time = db.Column(db.DateTime, nullable = False)
     artist = db.relationship('Artist', backref = db.backref('shows', cascade = "all, delete-orphan"))
     venue = db.relationship('Venue', backref = db.backref('shows', cascade = "all, delete-orphan"))
@@ -118,19 +118,20 @@ def venues():
     city_state = set([])
     venues = Venue.query.all()
     for v in venues:
-        cs.add((venue.city, venue.state))
+        cs.add((v.city, v.state))
     for cs in city_state:
         ven = []
         d = {"city": cs[0], "state": cs[1], "venues": []}
         for v in venues:
             num = 0
-            for a in v.artists:
+            for show in v.shows:
+                if show.start_time > datetime.date.today():
+                    num += 1
             if v.city == cs[0] and v.state == cs[1]:
-                num_up_shows = Show.query.filter(Show.venue_id == v.id).filter(Show.start_time > datetime.date.today()).all()
                 ven.append({
                 "id": v.id,
                 "name": v.name,
-                "num_upcoming_shows": len(num_up_shows)
+                "num_upcoming_shows" : num
                 })
         d["venues"] = ven
         data.append(d)
