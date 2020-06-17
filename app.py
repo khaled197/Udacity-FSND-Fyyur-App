@@ -13,6 +13,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+import datetime
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -29,8 +30,9 @@ migrate = Migrate(app, db)
 # Models.
 #----------------------------------------------------------------------------#
 Show = db.Table('Show',
-    db.Column('Venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key = True),
-    db.Column('Artist.id', db.Integer, db.ForeignKey('Artist.id'), primary_key = True)
+    db.Column('venue_id', db.Integer, db.ForeignKey('Venue.id'), primary_key = True),
+    db.Column('artist_id', db.Integer, db.ForeignKey('Artist.id'), primary_key = True),
+    db.Column('start_time',db.DateTime, nullable = False)
 )
 
 class Venue(db.Model):
@@ -44,6 +46,9 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120), nullable = False)
+    website = db.Column(db.String(120))
+    seeking_description = db.Column(db.String)
+    seeking_talent = db.Column(db.Boolean, default = True)
     artists = db.relationship('Artist', secondary=Show, backref=db.backref('venues', lazy = True))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
@@ -59,6 +64,8 @@ class Artist(db.Model):
     genres = db.Column(db.String(120), nullable = False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120), nullable = False)
+    seeking_description = db.Column(db.String)
+    seeking_venue = db.Column(db.Boolean, default = True)
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -94,25 +101,26 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-    # data = []
-    # city_state = set([])
-    # venues = Venue.query.all()
-    # for v in venues:
-    #     cs.add((venue.city, venue.state))
-    # for cs in city_state:
-    #     ven = []
-    #     d = {"city": cs[0], "state": cs[1], "venues": []}
-    #     for v in venues:
-    #         if v.city == cs[0] and v.state == cs[1]:
-    #             ven.append({
-    #             "id": v.id,
-    #             "name": v.name,
-    #             "num_upcoming_shows": len(v.artists)
-    #             })
-    #     d["venues"] = ven
-    #     data.append(d)
+  TODO: replace with real venues data.
+        num_shows should be aggregated based on number of upcoming shows per venue.
+    data = []
+    city_state = set([])
+    venues = Venue.query.all()
+    for v in venues:
+        cs.add((venue.city, venue.state))
+    for cs in city_state:
+        ven = []
+        d = {"city": cs[0], "state": cs[1], "venues": []}
+        for v in venues:
+            if v.city == cs[0] and v.state == cs[1]:
+                num_up_shows = Show.query.filter(Show.venue_id == v.id).filter(Show.start_time > datetime.date.today()).all()
+                ven.append({
+                "id": v.id,
+                "name": v.name,
+                "num_upcoming_shows": len(num_up_shows)
+                })
+        d["venues"] = ven
+        data.append(d)
 
 
   data=[{
@@ -144,34 +152,41 @@ def search_venues():
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
 
-  search_keyword = request.form.get('search_term', '')
-  venues = Venue.query.filter(Venue.name.ilike('%{}%'.format(search_keyword))).all()
-  response = {"count": len(venues)}
-  data = []
-  for v in venues:
-    data.append({
-    "id": v.id,
-    "name": v.name,
-    "num_upcoming_shows": len(v.artists)
-    })
-  response["data"] = data
+  # search_keyword = request.form.get('search_term', '')
+  # venues = Venue.query.filter(Venue.name.ilike('%{}%'.format(search_keyword))).all()
+  # response = {"count": len(venues)}
+  # data = []
+  # for v in venues:
+  #   data.append({
+  #   "id": v.id,
+  #   "name": v.name,
+  #   "num_upcoming_shows": len(Show.query.filter(Show.venue_id == v.id).filter(Show.start_time > datetime.date.today()).all())
+  #   })
+  # response["data"] = data
 
 
 
-  # response={
-  #   "count": 1,
-  #   "data": [{
-  #     "id": 2,
-  #     "name": "The Dueling Pianos Bar",
-  #     "num_upcoming_shows": 0,
-  #   }]
-  # }
+  response={
+    "count": 1,
+    "data": [{
+      "id": 2,
+      "name": "The Dueling Pianos Bar",
+      "num_upcoming_shows": 0,
+    }]
+  }
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   # shows the venue page with the given venue_id
   # TODO: replace with real venue data from the venues table, using venue_id
+
+
+
+
+
+
+  
   data1={
     "id": 1,
     "name": "The Musical Hop",

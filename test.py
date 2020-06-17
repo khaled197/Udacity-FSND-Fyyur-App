@@ -41,7 +41,9 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    start_time = db.Column(db.DateTime, nullable = False)
     artists = db.relationship('Artist', secondary=Show, backref=db.backref('venues', lazy = True))
+
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -63,8 +65,8 @@ class Artist(db.Model):
 
 
 
-
-    db.create_all()
+db.drop_all()
+db.create_all()
 
 
 
