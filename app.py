@@ -202,26 +202,23 @@ def show_venue(venue_id):
 
 
     venue = Venue.query.filter(Venue.id == venue_id).first();
-    up_shows_q = Show.query.filter(Show.venue_id == venue.id).filter(datetime.date.today() < Show.start_time).all()
-    past_shows_q = Show.query.filter(Show.venue_id == venue.id).filter(datetime.date.today() > Show.start_time).all()
     past_shows_list = []
     up_shows_list = []
 
-    for show in up_shows_q:
-        artist = Artist.query.filter_by(Artist.id == show.artist_id).first()
-        up_shows_list.append({
-        "artist_id": artist.id,
-        "artist_name": artist.name,
-        "artist_image_link": artist.image_link,
-        "start_time": show.start_time
-        })
-    for show in past_shows_list:
-        artist = Artist.query.filter_by(Artist.id == show.artist_id).first()
-        past_shows_list.append({
-            "artist_id": artist.id,
-            "artist_name": artist.name,
-            "artist_image_link": artist.image_link,
-            "start_time": show.start_time
+    for show in venue.shows:
+        if show.start_time > datetime.date.today():
+            up_shows_list.append({
+                "artist_id": show.artist.id,
+                "artist_name": show.artist.name,
+                "artist_image_link": show.artist.image_link,
+                "start_time": show.start_time
+            })
+        else:
+            past_shows_list.append({
+                "artist_id": show.artist.id,
+                "artist_name": show.artist.name,
+                "artist_image_link": show.artist.image_link,
+                "start_time": show.start_time
             })
 
     data = {
