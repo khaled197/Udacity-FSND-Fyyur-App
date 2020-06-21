@@ -353,7 +353,7 @@ def create_venue_submission():
         genres = ", ".join(request.form.getlist('genres')),
         image_link = request.form['image_link'] if 'image_link' in request.form else None,
         website = request.form['website'] if 'website' in request.form else None,
-        seeking_talent = request.form['seeking_talent'] if 'seeking_talent' in request.form else False,
+        seeking_talent = True if request.form['seeking_talent'] == "Yes" else False,
         seeking_description = request.form['seeking_description'] if 'seeking_description' in request.form else None
         )
         db.session.add(venue)
@@ -630,7 +630,7 @@ def edit_artist_submission(artist_id):
         'genres': ", ".join(request.form.getlist('genres')),
         'image_link': request.form['image_link'] if 'image_link' in request.form else None,
         'website': request.form['website'] if 'website' in request.form else None,
-        'seeking_venue': request.form['seeking_venue'] if 'seeking_venue' in request.form else False,
+        'seeking_venue': True if request.form['seeking_venue'] == "Yes" else False,
         'seeking_description': request.form['seeking_description'] if 'seeking_description' in request.form else None
 
     }
@@ -708,7 +708,7 @@ def edit_venue_submission(venue_id):
         'genres': ", ".join(request.form.getlist('genres')),
         'image_link': request.form['image_link'] if 'image_link' in request.form else None,
         'website': request.form['website'] if 'website' in request.form else None,
-        'seeking_talent': request.form['seeking_talent'] if 'seeking_talent' in request.form else False,
+        'seeking_talent': True if request.form['seeking_talent'] == "Yes" else False,
         'seeking_description': request.form['seeking_description'] if 'seeking_description' in request.form else None
     }
     try:
@@ -762,7 +762,7 @@ def create_artist_submission():
         genres = ", ".join(request.form.getlist('genres')),
         image_link = request.form['image_link'] if 'image_link' in request.form else None,
         website = request.form['website'] if 'website' in request.form else None,
-        seeking_venue = request.form['seeking_venue'] if 'seeking_venue' in request.form else False,
+        seeking_venue = True if request.form['seeking_venue'] == "Yes" else False,
         seeking_description = request.form['seeking_description'] if 'seeking_description' in request.form else None
         )
         db.session.add(artist)
@@ -775,7 +775,7 @@ def create_artist_submission():
     finally:
         db.session.close()
     try:
-        data = Artist.query.filter_by(id = id)
+        data = Artist.query.filter_by(id = id).first()
     except:
         print(sys.exc_info())
         query_error = True
@@ -789,6 +789,7 @@ def create_artist_submission():
             flash('Artist ' + request.form['name'] + ' was successfully listed!')
         else:
             flash('Artist ' + data.name + ' was successfully listed!')
+
 
       # on successful db insert, flash success
       # flash('Artist ' + request.form['name'] + ' was successfully listed!')
